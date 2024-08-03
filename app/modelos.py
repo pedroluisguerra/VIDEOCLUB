@@ -69,7 +69,27 @@ class Pelicula(Model):
 
     def __repr__(self) -> str:
         return f"Pelicula ({self.titulo}): {self.sinopsis}, {self._director}, {self.id}"
+   
+class Genero(Model):
 
+    @classmethod
+    def create_from_dict(cls, diccionario):
+        return cls(int(diccionario["id"]), diccionario["genero"])
+    
+    def __init__(self, name: str, id: int = -1):
+        self.name = name
+        self.id = id
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, self.__class__):                        
+            return self.id == other.id and self.name == other.name
+        return False
+    
+    def __hash__(self) -> int:
+        return hash(self.id, self.name)
+
+    def __repr__(self) -> str:
+        return f"Genero ({self.id}): {self.name}"     
 
 class DAO(ABC):
 
@@ -97,7 +117,7 @@ class DAO(ABC):
 class DAO_CSV(DAO):    
     model = None
 
-    def __init__(self, path, encoding ="utf-8"):
+    def __init__(self, path, encoding = "utf-8"):
         self.path = path
         self.encoding = encoding
 
@@ -116,3 +136,7 @@ class DAO_CSV_Director(DAO_CSV):
 class DAO_CSV_Pelicula(DAO_CSV):
    
     model = Pelicula
+
+class DAO_CSV_Genero(DAO_CSV):
+   
+    model = Genero

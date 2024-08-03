@@ -1,4 +1,4 @@
-from app.modelos import Director, DAO_CSV_Director, Pelicula, DAO_CSV_Pelicula
+from app.modelos import Director, DAO_CSV_Director, Pelicula, DAO_CSV_Pelicula, Genero, DAO_CSV_Genero
 
 def test_create_director():
     director = Director("Robert Redford")
@@ -22,7 +22,20 @@ def test_create_pelicula():
     assert pelicula.id == -1
     assert pelicula.director is None
 
-def test_create_pleicula_and_informar_director_completo():
+def test_create_genero():
+    genero = Genero("Fantasia")
+
+    assert genero.name == "Fantasia"
+    assert genero.id == -1
+
+def test_dao_genero_traer_todos():
+    dao = DAO_CSV_Genero("tests\genero.csv")
+    generos = dao.todos()
+
+    assert len(generos) == 13
+    assert generos[9] == Genero(10, "Romantica")
+
+def test_create_pelicula_and_informar_director_completo():
     director = Director("Peter Jackson", 9)
     pelicula = Pelicula("El señor de los anillos","Sauron es muy malo", director)
 
