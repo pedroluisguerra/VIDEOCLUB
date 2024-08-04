@@ -1,5 +1,8 @@
 from abc import ABC, abstractmethod
 import csv
+import sqlite3
+import itertools
+import os
 
 class Model(ABC):
     @classmethod
@@ -140,3 +143,45 @@ class DAO_CSV_Pelicula(DAO_CSV):
 class DAO_CSV_Genero(DAO_CSV):
    
     model = Genero
+
+class DAO_SQLite(DAO):
+    model = None
+    table = None
+    
+
+    def __init__(self, path) -> None:
+        self.path = path
+
+    def todos(self):
+        
+        '''
+        acceder a sqlite y traer todos los registros de la table del modelo con la función rows_to_dictlist traerlos en forma de diccionario
+        '''
+        print(f"Ruta de la base de datos: {self.path}")
+        conn = sqlite3.connect(self.path)
+
+        cur = conn.cursor()
+
+        cur.execute(f"select * from {self.table}")
+
+        lista = self.__rows_to_dictlist(cur.fetchall(),cur.description)
+        
+        conn.close()
+
+        return lista
+
+    def __rows_to_dictlist(self, rows, names):
+       # Extraer los nombres de las columnas
+       column_names = [col[0] for col in names]
+
+       # Crear diccionarios usando itertools.starmap
+       lists_dicts = list(itertools.starmap(lambda *args: dict(zip(column_names, args)), rows))
+       
+       # Convertir diccionarios en instancias del modelo usando map
+       resultado = list(map(self.model.create_from_dict, lists_dicts))
+
+       return resultado   
+
+class DAO_SQLite_Director(DAO_SQLite):
+    model = Director
+    table = "directores"
